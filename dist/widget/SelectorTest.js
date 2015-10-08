@@ -1,0 +1,268 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(3);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	/**
+	 * Created by wungcq on 15/9/23.
+	 */
+
+	//let React = require('React');
+
+	"use strict";
+
+	var SelectorListItem = React.createClass({ displayName: "SelectorListItem",
+	  getInitialState: function getInitialState() {
+	    return { selected: this.props.selected };
+	  },
+	  onSelect: function onSelect(val, index, label) {
+	    this.props.onSelect(val, index, label);
+	  },
+
+	  select: function select() {
+	    this.state.selected = !this.state.selected;
+	    this.onSelect(this.props.value, this.props.index, this.props.label);
+	  },
+
+	  render: function render() {
+	    return React.createElement("li", {
+	      className: this.props.selected ? 's-cur' : '',
+	      onClick: this.select }, React.createElement("div", { className: "text" }, this.props.label));
+	  }
+	});
+
+	var Selector = React.createClass({ displayName: "Selector",
+
+	  setValue: function setValue(value, index, label) {
+	    var OldValue = this.state.value;
+	    this.state.value = value;
+	    var OldIndex = this.state.index;
+	    this.state.index = index;
+	    this.state.label = label;
+	    //脏检查判断新旧值，发生改变则调用onChange
+	    if (OldIndex != index) {
+	      this.onChange(value, index, label, OldValue, OldIndex);
+	    }
+	    if (this.state.isOpen) {
+	      this.setOpen(false);
+	    }
+	  },
+	  onChange: function onChange(value, index, label, OldValue, OldIndex) {
+	    if (typeof this.props.onChange == 'function') {
+	      this.props.onChange.apply(null, arguments);
+	    }
+	    return;
+	  },
+	  onSelect: function onSelect(value, index, label) {
+	    if (typeof this.props.onSelect == 'function') {
+	      this.props.onSelect.apply(null, arguments);
+	    }
+	    return;
+	  },
+	  setOpen: function setOpen(isOpen) {
+	    var newState = this.state;
+	    newState.isOpen = isOpen;
+	    this.setState(newState);
+	  },
+	  getInitialState: function getInitialState() {
+	    return {
+	      isOpen: false,
+	      index: this.props.index,
+	      value: this.props.value,
+	      label: this.props.label
+	    };
+	  },
+
+	  toggleDropMenu: function toggleDropMenu(e) {
+	    var isOpen = !this.state.isOpen;
+	    this.setOpen(isOpen);
+	  },
+
+	  getScrollHeight: function getScrollHeight() {
+	    var liHeight = 34;
+	    var scrollNum = this.props.scrollNum;
+	    if (!scrollNum) {
+	      return '280px'; //默认值
+	    } else {
+	        return scrollNum * liHeight + 8 + "px";
+	      }
+	  },
+
+	  getHtml: function getHtml() {
+	    var _this = this;
+
+	    return this.props.options.map(function (option, index) {
+	      return React.createElement(SelectorListItem, {
+	        value: option.value,
+	        label: option.label,
+	        index: index,
+	        selected: _this.state.index == index,
+	        onSelect: _this.setValue });
+	    });
+	  },
+	  getSelectorClass: function getSelectorClass() {
+	    return "widget-selector  " + this.props.theme + " " + (this.props.direction || 'down') + " " + (this.state.isOpen ? 'show' : '') + " }";
+	  },
+
+	  getSelectorScrollViewStyle: function getSelectorScrollViewStyle() {
+	    return {
+	      width: "auto",
+	      maxHeight: this.getScrollHeight(),
+	      overflowY: "scroll"
+	    };
+	  },
+
+	  render: function render() {
+	    return React.createElement("span", { className: this.getSelectorClass(), style: { width: 'auto' }, onblur: this.toggleDropMenu }, React.createElement("em", { className: "w-show-sel", onClick: this.toggleDropMenu }, this.state.label || this.props.label || '请点击此处展开下拉列表选择'), React.createElement("span", { className: "w-arr" }), React.createElement("ul", { className: "w-lists" }, React.createElement("div", { className: "scroll-view", style: this.getSelectorScrollViewStyle() }, this.getHtml())));
+	  }
+	});
+
+	module.exports = Selector;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by wungcq on 15/9/25.
+	 */
+
+	'use strict';
+
+	var Selector = __webpack_require__(1);
+
+	var SelectorAPI = function SelectorAPI(arg) {
+	  this.arg = arg;
+	  this.dom = null;
+	  this.init();
+	};
+
+	SelectorAPI.prototype = {
+	  init: function init() {
+	    this.content = this.convertContent();
+	    this.dom = React.render(React.createElement(Selector, {
+	      options: this.convertContent(),
+	      theme: this.arg.theme,
+	      direction: this.arg.direction,
+	      onChange: this.arg.onChange,
+	      scrollNum: this.arg.scrollNum,
+	      index: this.arg.initIndex,
+	      label: this.arg.showSel }), this.arg.container);
+	  },
+	  convertContent: function convertContent() {
+	    return this.arg.content.map(function (item, index) {
+	      if (typeof item == 'string') {
+	        return {
+	          value: index,
+	          label: item
+	        };
+	      } else {
+	        return {
+	          value: item.value,
+	          label: item.label
+	        };
+	      }
+	    });
+	  },
+	  index: function index(_index) {
+	    if (_index && _index < this.content.length) {
+	      this.dom.setValue();
+	    }
+	    return this.dom.props.index;
+	  },
+	  val: function val(_val) {
+	    if (_val) {
+	      var index = this.content.indexOf(_val);
+	      if (index != -1) {
+	        this.dom.setValue(_val, index);
+	      }
+	    }
+	    return this.dom.props.value;
+	  },
+	  select: function select(val) {
+	    this.val(val);
+	  },
+	  element: function element() {
+	    return this.dom;
+	  }
+
+	};
+
+	module.exports = SelectorAPI;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by wungcq on 15/9/25.
+	 */
+	'use strict';
+
+	(function () {
+	  var Selector = __webpack_require__(2);
+	  var s = new Selector({
+	    content: ['2312', 'dfaqes', 'fqwegweqgqwgqwef', 'sdf', 'ewrqvd'],
+	    theme: 'blue',
+	    container: document.getElementById('container'),
+	    scrollNum: 4,
+	    initIndex: 2,
+	    showSel: '选择检测单元吧',
+	    onChange: function onChange() {
+	      console.log(arguments);
+	    }
+	  });
+
+	  console.log(s.element());
+	})();
+
+/***/ }
+/******/ ]);
